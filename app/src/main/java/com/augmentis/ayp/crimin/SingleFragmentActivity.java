@@ -15,7 +15,7 @@ public abstract class SingleFragmentActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_single_fragment);
 
-        Log.d(TAG, "On Create activity");
+        Log.d(CrimeListFragment.TAG, "On Create activity");
 
         FragmentManager fm = getSupportFragmentManager();
         Fragment f = fm.findFragmentById(R.id.fragment_container);
@@ -26,9 +26,9 @@ public abstract class SingleFragmentActivity extends FragmentActivity {
             fm.beginTransaction()
                     .add(R.id.fragment_container, f)
                     .commit();
-            Log.d(TAG, "Fragment is create");
+            Log.d(CrimeListFragment.TAG, "Fragment is create");
         } else {
-            Log.d(TAG, "Fragment have already been create");
+            Log.d(CrimeListFragment.TAG, "Fragment have already been create");
         }
     }
 
