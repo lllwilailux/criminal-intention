@@ -1,7 +1,9 @@
 package com.augmentis.ayp.crimin;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.IntegerRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -9,8 +11,10 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,6 +25,7 @@ public class CrimePagerActivity extends FragmentActivity {
     private int _position;
     private UUID _crimeId;
 
+    private List<Integer> positionChanged = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +58,27 @@ public class CrimePagerActivity extends FragmentActivity {
                 return _crimes.size();
             }
         });
+
+        // set position
+        int position = CrimeLab.getInstance(this).getCrimePositionById(_crimeId);
+        _viewPager.setCurrentItem(position);
     }
+
+    protected void addPageUpdate(int position) {
+       if(positionChanged.contains(position)){
+           return;
+       }
+
+        positionChanged.add(position);
+
+        Intent intent = new Intent();
+        Integer[] positions = positionChanged.toArray(new Integer[0]);
+        intent.putExtra("position", positions);
+        Log.d(CrimeListFragment.TAG, "send position back : " + position);
+        setResult(Activity.RESULT_OK, intent);
+
+    }
+
 
 
     protected static final String CRIME_ID = "crimePagerActivity.crimeId";
@@ -63,6 +88,7 @@ public class CrimePagerActivity extends FragmentActivity {
         Intent intent = new Intent(activity, CrimePagerActivity.class);
         intent.putExtra(CRIME_ID, id);
         intent.putExtra(CRIME_POSITION, position);
+
         return intent;
     }
 }

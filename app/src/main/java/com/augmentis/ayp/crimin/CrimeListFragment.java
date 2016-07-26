@@ -26,8 +26,11 @@ public class CrimeListFragment extends Fragment {
     private CrimeAdapter _adapter;
 
     protected static final String TAG = "CRIME_LIST";
-    private static final int REQUEST_UPDATE_CRIME = 178;
-    private int crimePos;
+
+    private Integer[] crimePos;
+
+    private static final int REQUEST_UPDATE_CRIME = 191;
+    //private int crimePos;
 
     /**
      * create view from fragment_crime_list layout and put Recycle in this layout
@@ -57,13 +60,17 @@ public class CrimeListFragment extends Fragment {
         List<Crime> crimes = crimeLab.getCrimes();
 
 
-        if(_adapter == null) {
+        if (_adapter == null) {
             _adapter = new CrimeAdapter(crimes);//สร้าง crime adapter
             _crimeRecyclerView.setAdapter(_adapter);// เอา crime adapter ใส่ไว้ใน crime recycle view
         } else {
             //_adapter.notifyDataSetChanged();
-            _adapter.notifyItemChanged(crimePos);
-            Log.d(TAG,"notify change");
+            if (crimePos != null) {
+                for(Integer pos : crimePos) {
+                    _adapter.notifyItemChanged(pos);
+                    Log.d(TAG, "notify change at " + pos);
+                }
+            }
         }
     }
 
@@ -83,9 +90,8 @@ public class CrimeListFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_UPDATE_CRIME) {
-
-            if (requestCode == Activity.RESULT_OK) {
-                crimePos = (int) data.getExtras().get("position");
+            if (resultCode == Activity.RESULT_OK) {
+                crimePos = (Integer[]) data.getExtras().get("position");
                 Log.d(TAG, "Get crimePos = " + crimePos );
             }
                 Log.d(TAG, "Return from CrimeFragment");
@@ -129,7 +135,7 @@ public class CrimeListFragment extends Fragment {
         @Override
         public void onClick(View v) {
             Log.d(TAG, "send position : " + _position);
-            crimePos = _position;
+            //crimePos = _position;
             Intent intent = CrimePagerActivity.newIntent(getActivity(), _crime.getId(), _position);//intent คือ obj ของ android ที่ใช้เรียก activity ขึ้นมา
             startActivityForResult(intent, REQUEST_UPDATE_CRIME);//  startActivityForResult, starActivity เป็น method ของ class fragment, startActivity จะเรียก intent อย่างเดียว
         }
@@ -160,11 +166,7 @@ public class CrimeListFragment extends Fragment {
             return new CrimeHolder(v);
         }
 
-        /**
-         *
-         * @param holder
-         * @param position
-         */
+
         @Override
         public void onBindViewHolder(CrimeHolder holder, int position) {
 

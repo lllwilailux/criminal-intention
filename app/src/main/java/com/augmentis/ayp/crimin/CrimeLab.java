@@ -18,7 +18,7 @@ public class CrimeLab {
 
     //เป็น singleton
     //สร้าง CrimeLab ขึ้นมา
-    public static CrimeLab getInstance( Context context) {
+    public static CrimeLab getInstance(Context context) {
         if ( instance == null) {
             instance = new CrimeLab();
         }
@@ -45,6 +45,19 @@ public class CrimeLab {
         }
         return null;
     }
+
+
+
+    public int getCrimePositionById (UUID uuid){
+        int size = crimeList.size();
+        for (int i =0; i < size; i++) {
+            if (crimeList.get(i).getId().equals(uuid)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 
     public List<Crime> getCrimes() {
         return crimeList;
