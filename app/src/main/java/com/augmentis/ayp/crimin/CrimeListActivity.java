@@ -8,6 +8,10 @@ import android.util.Log;
 
 public class CrimeListActivity extends SingleFragmentActivity {
 
+    /**
+     * ต้องการสร้าง fragment เลยต้องไปเเรียก onCreateFragment ใน Crime ListActivity
+     *
+     */
     @Override
     protected Fragment onCreateFragment() {
         return new CrimeListFragment();

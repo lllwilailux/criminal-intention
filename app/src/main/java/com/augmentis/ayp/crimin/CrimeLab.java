@@ -1,5 +1,7 @@
 package com.augmentis.ayp.crimin;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -11,10 +13,12 @@ public class CrimeLab {
 
     List<Crime> crimeList;
 
+    // instance เป็น static มันจะผูกติดกับ class CrimeLab
     private static CrimeLab instance;
 
     //เป็น singleton
-    public static CrimeLab getInstance() {
+    //สร้าง CrimeLab ขึ้นมา
+    public static CrimeLab getInstance( Context context) {
         if ( instance == null) {
             instance = new CrimeLab();
         }
@@ -47,15 +51,15 @@ public class CrimeLab {
     }
 
     public static void main (String[] args) {
-        CrimeLab crimeLab = CrimeLab.getInstance();
+        CrimeLab crimeLab = CrimeLab.getInstance(null);
         List<Crime> crimeList = crimeLab.getCrimes();
         int size = crimeList.size();
         for( int i=0; i<size; i++){
             System.out.println(crimeList.get(i));
         }
-        System.out.println(crimeList.toString());
-
-        System.out.println(CrimeLab.getInstance());
+//        System.out.println(crimeList.toString());
+//
+//        System.out.println(CrimeLab.getInstance(this, this));
 
     }
 

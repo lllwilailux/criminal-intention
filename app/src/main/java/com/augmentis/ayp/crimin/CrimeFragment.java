@@ -42,6 +42,9 @@ public class CrimeFragment extends Fragment {
         args.putSerializable(CRIME_ID, crimeId);
         args.putInt(CRIME_POSITION, position);
 
+        /**
+         *  สร้างตัวมันเองขึ้นมา แล้ว set arg ให้ แล้วส่งกลับไปให้ crime fragment
+         */
         CrimeFragment crimeFragment = new CrimeFragment();
         crimeFragment.setArguments(args);
         return crimeFragment;
@@ -53,8 +56,8 @@ public class CrimeFragment extends Fragment {
 
         UUID crimeID = (UUID) getArguments().getSerializable(CRIME_ID);
         position = getArguments().getInt(CRIME_POSITION);
-        crime = CrimeLab.getInstance().getCrimeById(crimeID);
-        Log.d(CrimeListFragment.TAG, "crime.getId() =" + crime.getId());
+        crime = CrimeLab.getInstance(getActivity()).getCrimeById(crimeID);
+        //Log.d(CrimeListFragment.TAG, "crime.getId() =" + crime.getId());
         Log.d(CrimeListFragment.TAG, "crime.getTitle() =" + crime.getTitle());
     }
 
@@ -96,7 +99,7 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 crime.setSolved(isChecked);
-                Log.d(CrimeActivity.TAG, "Crime:" + crime.toString());
+                //Log.d(CrimeActivity.TAG, "Crime:" + crime.toString());
             }
         });
 

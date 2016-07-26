@@ -23,6 +23,9 @@ public abstract class SingleFragmentActivity extends FragmentActivity {
         if( f == null) {
             f = onCreateFragment();
 
+            /**
+             * create fragment anf commit to fragment container
+             */
             fm.beginTransaction()
                     .add(R.id.fragment_container, f)
                     .commit();

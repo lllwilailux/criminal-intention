@@ -26,9 +26,13 @@ public class CrimeListFragment extends Fragment {
     private CrimeAdapter _adapter;
 
     protected static final String TAG = "CRIME_LIST";
-    private static final int REQUEST_UPDATE_CRIME = 99;
+    private static final int REQUEST_UPDATE_CRIME = 178;
     private int crimePos;
 
+    /**
+     * create view from fragment_crime_list layout and put Recycle in this layout
+     * getActivity อยู่ใน fragment
+     */
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -36,7 +40,7 @@ public class CrimeListFragment extends Fragment {
 
 
         _crimeRecyclerView = (RecyclerView) v.findViewById(R.id.crime_recycler_view);
-        _crimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        _crimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));// recycleView ต้องใช้ layoutManager ในการสร้างหน้าจอ ฉะนั้น เราต้อง setLayoutManager
 
         updateUI();
 
@@ -45,14 +49,17 @@ public class CrimeListFragment extends Fragment {
 
     /**
      * Update UI
+     *
+     *
      */
     private void updateUI(){
-        CrimeLab crimeLab = CrimeLab.getInstance();
+        CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
+
         if(_adapter == null) {
-            _adapter = new CrimeAdapter(crimes);
-            _crimeRecyclerView.setAdapter(_adapter);
+            _adapter = new CrimeAdapter(crimes);//สร้าง crime adapter
+            _crimeRecyclerView.setAdapter(_adapter);// เอา crime adapter ใส่ไว้ใน crime recycle view
         } else {
             //_adapter.notifyDataSetChanged();
             _adapter.notifyItemChanged(crimePos);
@@ -109,17 +116,22 @@ public class CrimeListFragment extends Fragment {
         public void bind(Crime crime, int position) {
             _crime = crime;
             _position = position;
-            _titleTextView.setText(crime.getTitle());
-            _dateTextView.setText(crime.getCrimeDate().toString());
-            _solvedCheckBox.setChecked(crime.isSolved());
+            _titleTextView.setText(_crime.getTitle());
+            _dateTextView.setText(_crime.getCrimeDate().toString());
+            _solvedCheckBox.setChecked(_crime.isSolved());
         }
 
+
+        /**
+         * check ว่ามีใคร click ตำแหน่งไหนบ้าง
+         *
+         */
         @Override
         public void onClick(View v) {
             Log.d(TAG, "send position : " + _position);
             crimePos = _position;
-            Intent intent = CrimeActivity.newIntent(getActivity(), _crime.getId(), _position);
-            startActivityForResult(intent, REQUEST_UPDATE_CRIME);
+            Intent intent = CrimePagerActivity.newIntent(getActivity(), _crime.getId(), _position);//intent คือ obj ของ android ที่ใช้เรียก activity ขึ้นมา
+            startActivityForResult(intent, REQUEST_UPDATE_CRIME);//  startActivityForResult, starActivity เป็น method ของ class fragment, startActivity จะเรียก intent อย่างเดียว
         }
     }
 
@@ -133,6 +145,9 @@ public class CrimeListFragment extends Fragment {
         }
 
 
+        /**
+         * หลังจากที่เราเลื่อนหน้าจอ มันก็จะสร้าง crime list ขึ้นมาใหม่ เพราะว่าหน้าจอที่สร้างมาตอนแรกไม่พอ
+         */
         @Override
         public CrimeHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
@@ -145,12 +160,17 @@ public class CrimeListFragment extends Fragment {
             return new CrimeHolder(v);
         }
 
+        /**
+         *
+         * @param holder
+         * @param position
+         */
         @Override
         public void onBindViewHolder(CrimeHolder holder, int position) {
 
             Log.d(TAG, "Bind view holder for CrimeList : position = " + position);
 
-            Crime crime = _crimes.get(position);
+            Crime crime = _crimes.get(position);// _crimes คือ ArrayList
             holder.bind(crime, position);
         }
 
