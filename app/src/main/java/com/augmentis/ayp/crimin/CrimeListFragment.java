@@ -56,7 +56,7 @@ public class CrimeListFragment extends Fragment {
      *
      */
     private void updateUI(){
-        CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
+        CrimeLab crimeLab = CrimeLab.getInstance(getActivity());//เรียกCrimeLab จาก method getInstance เพราะ crimeLab เป็น singleton ห้าม new
         List<Crime> crimes = crimeLab.getCrimes();
 
 

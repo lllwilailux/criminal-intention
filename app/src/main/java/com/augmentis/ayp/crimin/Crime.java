@@ -1,5 +1,6 @@
 package com.augmentis.ayp.crimin;
 
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -13,6 +14,7 @@ public class Crime {
     private String title;
     private Date crimeDate;
     private boolean solved;
+    private Time crimeTime;
 
 
     public Crime(){
@@ -46,6 +48,7 @@ public class Crime {
     public Date getCrimeDate() {
         return crimeDate;
     }
+
 
 
     public void setCrimeDate(Date crimeDate) {
