@@ -28,13 +28,13 @@ public class CrimeLab {
     private CrimeLab() {
         crimeList = new ArrayList<>();
 
-        for (int i = 1; i <= 100; i++){
-            Crime crime = new Crime();
-            crime.setTitle("Crime #" + i);
-            crime.setSolved( i % 2 == 0);
-
-            crimeList.add(crime);
-        }
+//        for (int i = 1; i <= 100; i++){
+//            Crime crime = new Crime();
+//            crime.setTitle("Crime #" + i);
+//            crime.setSolved( i % 2 == 0);
+//
+//            crimeList.add(crime);
+//        }
     }
 
     public Crime getCrimeById(UUID uuid){
@@ -58,10 +58,14 @@ public class CrimeLab {
         return -1;
     }
 
-
     public List<Crime> getCrimes() {
         return crimeList;
     }
+
+    public void addCrime(Crime crime){
+        crimeList.add(crime);
+    }
+
 
     public static void main (String[] args) {
         CrimeLab crimeLab = CrimeLab.getInstance(null);

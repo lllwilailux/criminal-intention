@@ -35,11 +35,11 @@ public class CrimeFragment extends Fragment {
     private static final String DIALOG_TIME = "CrimeTimeDialogFragment";
 
     private Crime crime;
-    private int position;
     private EditText editText;
 
     private Button crimeDateButton;
-    private Button crimeTimeButtom;
+    private Button crimeTimeButton;
+    private Button crimeDeleteButton;
     private CheckBox crimeSolvedCheckbox;
 
     public CrimeFragment() {}
@@ -62,7 +62,6 @@ public class CrimeFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         UUID crimeID = (UUID) getArguments().getSerializable(CRIME_ID);
-        position = getArguments().getInt(CRIME_POSITION);
         crime = CrimeLab.getInstance(getActivity()).getCrimeById(crimeID);
         //Log.d(CrimeListFragment.TAG, "crime.getId() =" + crime.getId());
         Log.d(CrimeListFragment.TAG, "crime.getTitle() =" + crime.getTitle());
@@ -71,7 +70,7 @@ public class CrimeFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_crime, container, false);
 
         editText = (EditText) v.findViewById(R.id.crime_title);
@@ -86,7 +85,6 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 crime.setTitle(s.toString());
-                addThisPositionToResult(position);
             }
 
             @Override
@@ -97,7 +95,6 @@ public class CrimeFragment extends Fragment {
 
 
         crimeDateButton = (Button) v.findViewById(R.id.crime_date);
-       // crimeDateButton.setText(new SimpleDateFormat( "d MMMM yyyy" ).format(crime.getCrimeDate())); set format date เหมือน method getFormatteDate ข้างล่าง
         crimeDateButton.setText(getFormattedDate(crime.getCrimeDate()));
         crimeDateButton.setOnClickListener(new View.OnClickListener() {
 
@@ -116,9 +113,9 @@ public class CrimeFragment extends Fragment {
         });
 
 
-        crimeTimeButtom = (Button) v.findViewById(R.id.crime_time);
-        crimeTimeButtom.setText(getFormattedTime(crime.getCrimeDate()));
-        crimeTimeButtom.setOnClickListener(new View.OnClickListener() {
+        crimeTimeButton = (Button) v.findViewById(R.id.crime_time);
+        crimeTimeButton.setText(getFormattedTime(crime.getCrimeDate()));
+        crimeTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 FragmentManager fm = getFragmentManager();
@@ -131,18 +128,27 @@ public class CrimeFragment extends Fragment {
 
 
 
+        crimeDeleteButton = (Button) v.findViewById(R.id.crime_delete);
+        crimeDeleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                CrimeLab.getInstance(getActivity()).getCrimes().remove(CrimeLab.getInstance(getActivity()).getCrimeById(crime.getId()));
+                getActivity().finish();
+            }
+        });
+
+
+
         crimeSolvedCheckbox = (CheckBox) v.findViewById(R.id.crime_solved);
         crimeSolvedCheckbox.setChecked(crime.isSolved());
         crimeSolvedCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 crime.setSolved(isChecked);
-                addThisPositionToResult(position);
                 //Log.d(CrimeActivity.TAG, "Crime:" + crime.toString());
             }
         });
-
-
 
         return v;
     }
@@ -157,13 +163,6 @@ public class CrimeFragment extends Fragment {
         return new SimpleDateFormat("HH:mm a").format(date);
     }
 
-
-    private void addThisPositionToResult(int position) {
-        if (getActivity() instanceof CrimePagerActivity) {
-            ((CrimePagerActivity) getActivity()).addPageUpdate(position);
-        }
-    }
-
     @Override
     public void onActivityResult(int requestCode, int result, Intent data) {
         if (result != Activity.RESULT_OK) {
@@ -176,7 +175,6 @@ public class CrimeFragment extends Fragment {
             // set
             crime.setCrimeDate(date);
             crimeDateButton.setText(getFormattedDate(crime.getCrimeDate()));
-            addThisPositionToResult(position);
         }
 
         if (requestCode == REQUEST_TIME) {
@@ -184,8 +182,7 @@ public class CrimeFragment extends Fragment {
 
             // set
             crime.setCrimeDate(date);
-            crimeTimeButtom.setText(getFormattedTime(crime.getCrimeDate()));
-            addThisPositionToResult(position);
+            crimeTimeButton.setText(getFormattedTime(crime.getCrimeDate()));
         }
     }
 }

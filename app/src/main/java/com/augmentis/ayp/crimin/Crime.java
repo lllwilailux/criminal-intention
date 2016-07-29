@@ -49,8 +49,6 @@ public class Crime {
         return crimeDate;
     }
 
-
-
     public void setCrimeDate(Date crimeDate) {
 
         this.crimeDate = crimeDate;
@@ -63,6 +61,7 @@ public class Crime {
     public void setSolved(boolean solved) {
         this.solved = solved;
     }
+
 
     @Override
     public String toString() {

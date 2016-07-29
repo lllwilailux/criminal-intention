@@ -6,4 +6,10 @@
     <string name="crime_solve_lable">solved</string>
     <string name="date_picker_title">Pick Date</string>
     <string name="time_picker_title">Pick Time</string>
+    <string name="new_crime">New Crime</string>
+    <string name="show_subtitle">Show Subtitle</string>
+    <string name="show_test1">test1</string>
+    <string name="subtitle_format">%d Crime</string>
+    <string name="hide_subtitle">Hide Subtitle</string>
+    <string name="Delete">Delete</string>
 </resources>

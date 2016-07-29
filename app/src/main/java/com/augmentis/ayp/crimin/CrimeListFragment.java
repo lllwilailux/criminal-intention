@@ -5,10 +5,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -21,6 +25,7 @@ import java.util.List;
  */
 public class CrimeListFragment extends Fragment {
 
+    private static final java.lang.String SUBTITLE_VISIBLE_STATE = "Subtitle_visible" ;
     private RecyclerView _crimeRecyclerView;
 
     private CrimeAdapter _adapter;
@@ -28,6 +33,8 @@ public class CrimeListFragment extends Fragment {
     protected static final String TAG = "CRIME_LIST";
 
     private Integer[] crimePos;
+
+    private boolean _subtitleVisible;
 
     private static final int REQUEST_UPDATE_CRIME = 191;
     //private int crimePos;
@@ -45,9 +52,84 @@ public class CrimeListFragment extends Fragment {
         _crimeRecyclerView = (RecyclerView) v.findViewById(R.id.crime_recycler_view);
         _crimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));// recycleView ต้องใช้ layoutManager ในการสร้างหน้าจอ ฉะนั้น เราต้อง setLayoutManager
 
+        if (savedInstanceState != null){
+            _subtitleVisible = savedInstanceState.getBoolean(SUBTITLE_VISIBLE_STATE);
+        }
+
         updateUI();
 
         return v;
+    }
+
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.crime_list_menu, menu);
+
+        MenuItem menuItem = menu.findItem(R.id.menu_item_show_subtitle);
+
+        if (_subtitleVisible){
+            menuItem.setIcon(R.drawable.ic_hide);
+            menuItem.setTitle(R.string.hide_subtitle);
+        } else {
+            menuItem.setIcon(R.drawable.ic_show);
+            menuItem.setTitle(R.string.show_subtitle);
+        }
+    }
+
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setHasOptionsMenu(true);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()){
+            case R.id.menu_item_new_crime:
+
+                Crime crime = new Crime();
+                CrimeLab.getInstance(getActivity()).addCrime(crime);
+                Intent intent =CrimePagerActivity.newIntent(getActivity(), crime.getId());
+                startActivity(intent);
+                return true;
+
+            case R.id.menu_item_show_subtitle :
+                _subtitleVisible = !_subtitleVisible;
+                getActivity().invalidateOptionsMenu();
+
+                updateSubtitle();
+                return true;
+
+            default:
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+
+    public void updateSubtitle(){
+        CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
+        int crimeCount = crimeLab.getCrimes().size();
+        String subtitle = getString(R.string.subtitle_format, crimeCount);
+
+        if (!_subtitleVisible) {
+            subtitle = null;
+        }
+        AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
+        appCompatActivity.getSupportActionBar().setSubtitle(subtitle);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean(SUBTITLE_VISIBLE_STATE, _subtitleVisible);
     }
 
     /**
@@ -64,20 +146,17 @@ public class CrimeListFragment extends Fragment {
             _adapter = new CrimeAdapter(crimes);//สร้าง crime adapter
             _crimeRecyclerView.setAdapter(_adapter);// เอา crime adapter ใส่ไว้ใน crime recycle view
         } else {
-            //_adapter.notifyDataSetChanged();
-            if (crimePos != null) {
-                for(Integer pos : crimePos) {
-                    _adapter.notifyItemChanged(pos);
-                    Log.d(TAG, "notify change at " + pos);
-                }
-            }
+            _adapter.notifyDataSetChanged();
+//            if (crimePos != null) {
+//                for(Integer pos : crimePos) {
+//                    _adapter.notifyItemChanged(pos);
+//                    Log.d(TAG, "notify change at " + pos);
+//                }
+//            }
         }
+        updateSubtitle();
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
 
     @Override
     public void onResume() {
@@ -97,6 +176,7 @@ public class CrimeListFragment extends Fragment {
                 Log.d(TAG, "Return from CrimeFragment");
         }
     }
+
 
     /**
      *
@@ -136,7 +216,7 @@ public class CrimeListFragment extends Fragment {
         public void onClick(View v) {
             Log.d(TAG, "send position : " + _position);
             //crimePos = _position;
-            Intent intent = CrimePagerActivity.newIntent(getActivity(), _crime.getId(), _position);//intent คือ obj ของ android ที่ใช้เรียก activity ขึ้นมา
+            Intent intent = CrimePagerActivity.newIntent(getActivity(), _crime.getId());//intent คือ obj ของ android ที่ใช้เรียก activity ขึ้นมา
             startActivityForResult(intent, REQUEST_UPDATE_CRIME);//  startActivityForResult, starActivity เป็น method ของ class fragment, startActivity จะเรียก intent อย่างเดียว
         }
     }
