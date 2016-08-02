@@ -12,46 +12,21 @@ import android.support.v7.app.AppCompatActivity;
 import java.util.List;
 import java.util.UUID;
 
-public class CrimePagerActivity extends AppCompatActivity {
+public class CrimePagerActivity extends SingleFragmentActivity {
 
-    private ViewPager _viewPager;
-    private List<Crime> _crimes;
     private UUID _crimeId;
 
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//
+//        super.onCreate(savedInstanceState);
+//        _crimeId = (UUID) getIntent().getSerializableExtra(CRIME_ID);
+//    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_crime_pager);
-
+    protected Fragment onCreateFragment() {
         _crimeId = (UUID) getIntent().getSerializableExtra(CRIME_ID);
-
-        _viewPager = (ViewPager) findViewById(R.id.activity_crime_pager_view_pager);
-
-        _crimes = CrimeLab.getInstance(this).getCrimes();
-
-        FragmentManager fm = getSupportFragmentManager();
-        _viewPager.setAdapter(new FragmentStatePagerAdapter(fm) {
-
-            /**
-             * สร้าง fragment ขึ้นมาจาก position
-             */
-            @Override
-            public Fragment getItem(int position) {
-
-                Crime crime = _crimes.get(position);
-                Fragment f = CrimeFragment.newInstance(crime.getId(), position);//เป็น method ไว้สร้าง crime fragment
-                return f;
-            }
-
-            @Override
-            public int getCount() {
-                return _crimes.size();
-            }
-        });
-
-        // set position
-        int position = CrimeLab.getInstance(this).getCrimePositionById(_crimeId);
-        _viewPager.setCurrentItem(position);
+        return CrimeFragment.newInstance(_crimeId);
     }
 
 

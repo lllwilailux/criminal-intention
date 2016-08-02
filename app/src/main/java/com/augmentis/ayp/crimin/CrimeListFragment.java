@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.util.List;
@@ -95,7 +96,7 @@ public class CrimeListFragment extends Fragment {
 
                 Crime crime = new Crime();
                 CrimeLab.getInstance(getActivity()).addCrime(crime);
-                Intent intent =CrimePagerActivity.newIntent(getActivity(), crime.getId());
+                Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId());
                 startActivity(intent);
                 return true;
 
@@ -135,7 +136,6 @@ public class CrimeListFragment extends Fragment {
     /**
      * Update UI
      *
-     *
      */
     private void updateUI(){
         CrimeLab crimeLab = CrimeLab.getInstance(getActivity());//เรียกCrimeLab จาก method getInstance เพราะ crimeLab เป็น singleton ห้าม new
@@ -146,13 +146,8 @@ public class CrimeListFragment extends Fragment {
             _adapter = new CrimeAdapter(crimes);//สร้าง crime adapter
             _crimeRecyclerView.setAdapter(_adapter);// เอา crime adapter ใส่ไว้ใน crime recycle view
         } else {
+            _adapter.setCrimes(crimeLab.getCrimes());
             _adapter.notifyDataSetChanged();
-//            if (crimePos != null) {
-//                for(Integer pos : crimePos) {
-//                    _adapter.notifyItemChanged(pos);
-//                    Log.d(TAG, "notify change at " + pos);
-//                }
-//            }
         }
         updateSubtitle();
     }
@@ -178,9 +173,7 @@ public class CrimeListFragment extends Fragment {
     }
 
 
-    /**
-     *
-     */
+
     private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         public TextView _titleTextView;
         public TextView  _dateTextView;
@@ -196,7 +189,16 @@ public class CrimeListFragment extends Fragment {
             _solvedCheckBox = (CheckBox) itemView.findViewById(R.id.list_item_crime_solve_check_box);
             _dateTextView = (TextView) itemView.findViewById(R.id.list_item_crime_date_text_view);
 
+            _solvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    _crime.setSolved(b);
+                    CrimeLab.getInstance(getActivity()).updateCrime(_crime);
+                }
+            });
+
             itemView.setOnClickListener(this);
+
         }
 
         public void bind(Crime crime, int position) {
@@ -205,6 +207,7 @@ public class CrimeListFragment extends Fragment {
             _titleTextView.setText(_crime.getTitle());
             _dateTextView.setText(_crime.getCrimeDate().toString());
             _solvedCheckBox.setChecked(_crime.isSolved());
+
         }
 
 
@@ -230,6 +233,9 @@ public class CrimeListFragment extends Fragment {
             this._crimes = crimes;
         }
 
+        protected void setCrimes(List<Crime> crimes) {
+            _crimes = crimes;
+        }
 
         /**
          * หลังจากที่เราเลื่อนหน้าจอ มันก็จะสร้าง crime list ขึ้นมาใหม่ เพราะว่าหน้าจอที่สร้างมาตอนแรกไม่พอ

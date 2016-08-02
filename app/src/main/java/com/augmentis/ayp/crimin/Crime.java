@@ -1,7 +1,5 @@
 package com.augmentis.ayp.crimin;
 
-import java.sql.Time;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
@@ -14,20 +12,17 @@ public class Crime {
     private String title;
     private Date crimeDate;
     private boolean solved;
-    private Time crimeTime;
+    private String suspect;
 
 
     public Crime(){
-        id = UUID.randomUUID();
-        crimeDate = new Date();
-//
-//        SimpleDateFormat sdf = new SimpleDateFormat( "d MMMM yyyy" );
-//        sdf.format(crimeDate);
+        this(UUID.randomUUID());
     }
-//
-//    public String getFormattedDate(String sdf){
-//        return sdf;
-//    }
+
+    public Crime (UUID uuid) {
+        this.id = uuid;
+        crimeDate = new Date();
+    }
 
     public String getTitle() {
         return title;
@@ -50,7 +45,6 @@ public class Crime {
     }
 
     public void setCrimeDate(Date crimeDate) {
-
         this.crimeDate = crimeDate;
     }
 
@@ -62,6 +56,15 @@ public class Crime {
         this.solved = solved;
     }
 
+    public String getSuspect() {
+        return suspect;
+    }
+
+    public void setSuspect(String suspect) {
+        this.suspect = suspect;
+    }
+
+
 
     @Override
     public String toString() {
@@ -70,6 +73,7 @@ public class Crime {
         builder.append(",Title=").append(title);
         builder.append(",Crime Date=").append(crimeDate);
         builder.append(",solves=").append(solved);
+        builder.append(",Suspect=").append(suspect);
         return builder.toString();
     }
 }

@@ -10,6 +10,9 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -44,10 +47,9 @@ public class CrimeFragment extends Fragment {
 
     public CrimeFragment() {}
 
-    public static CrimeFragment newInstance(UUID crimeId, int position) {
+    public static CrimeFragment newInstance(UUID crimeId) {
         Bundle args = new Bundle();
         args.putSerializable(CRIME_ID, crimeId);
-        args.putInt(CRIME_POSITION, position);
 
         /**
          *  สร้างตัวมันเองขึ้นมา แล้ว set arg ให้ แล้วส่งกลับไปให้ crime fragment
@@ -61,10 +63,21 @@ public class CrimeFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        UUID crimeID = (UUID) getArguments().getSerializable(CRIME_ID);
-        crime = CrimeLab.getInstance(getActivity()).getCrimeById(crimeID);
-        //Log.d(CrimeListFragment.TAG, "crime.getId() =" + crime.getId());
+        CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
+
+
+        if (getArguments().get(CRIME_ID) != null) {
+            UUID crimeId =(UUID) getArguments().getSerializable(CRIME_ID);
+            crime = crimeLab.getCrimeById(crimeId);
+        } else {
+            // == null
+            Crime crime = new Crime();
+            CrimeLab.getInstance(getActivity()).addCrime(crime);
+            this.crime = crime;
+        }
         Log.d(CrimeListFragment.TAG, "crime.getTitle() =" + crime.getTitle());
+
+        setHasOptionsMenu(true);
     }
 
 
@@ -128,28 +141,28 @@ public class CrimeFragment extends Fragment {
 
 
 
-        crimeDeleteButton = (Button) v.findViewById(R.id.crime_delete);
-        crimeDeleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                CrimeLab.getInstance(getActivity()).getCrimes().remove(CrimeLab.getInstance(getActivity()).getCrimeById(crime.getId()));
-                getActivity().finish();
-            }
-        });
-
-
-
-        crimeSolvedCheckbox = (CheckBox) v.findViewById(R.id.crime_solved);
-        crimeSolvedCheckbox.setChecked(crime.isSolved());
-        crimeSolvedCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                crime.setSolved(isChecked);
-                //Log.d(CrimeActivity.TAG, "Crime:" + crime.toString());
-            }
-        });
-
+//        crimeDeleteButton = (Button) v.findViewById(R.id.crime_delete);
+//        crimeDeleteButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                CrimeLab.getInstance(getActivity()).deleteCrime(crime.getId());
+//                getActivity().finish();
+//            }
+//        });
+//
+//
+//
+//        crimeSolvedCheckbox = (CheckBox) v.findViewById(R.id.crime_solved);
+//        crimeSolvedCheckbox.setChecked(crime.isSolved());
+//        crimeSolvedCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                crime.setSolved(isChecked);
+//                //Log.d(CrimeActivity.TAG, "Crime:" + crime.toString());
+//            }
+//        });
+//
         return v;
     }
 
@@ -184,5 +197,30 @@ public class CrimeFragment extends Fragment {
             crime.setCrimeDate(date);
             crimeTimeButton.setText(getFormattedTime(crime.getCrimeDate()));
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        CrimeLab.getInstance(getActivity()).updateCrime(crime);// update crime in database after click back
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.crime_menu, menu);
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()){
+            case R.id.menu_item_delete_crime:
+                CrimeLab.getInstance(getActivity()).deleteCrime(crime.getId());
+                getActivity().finish();
+        default:
+        return super.onOptionsItemSelected(item);}
     }
 }
