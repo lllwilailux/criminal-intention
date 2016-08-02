@@ -36,6 +36,7 @@ public class CrimeListFragment extends Fragment {
     private Integer[] crimePos;
 
     private boolean _subtitleVisible;
+    public TextView visibleText;
 
     private static final int REQUEST_UPDATE_CRIME = 191;
     //private int crimePos;
@@ -49,13 +50,10 @@ public class CrimeListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_crime_list,container,false);
 
-
         _crimeRecyclerView = (RecyclerView) v.findViewById(R.id.crime_recycler_view);
         _crimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));// recycleView ต้องใช้ layoutManager ในการสร้างหน้าจอ ฉะนั้น เราต้อง setLayoutManager
 
-        if (savedInstanceState != null){
-            _subtitleVisible = savedInstanceState.getBoolean(SUBTITLE_VISIBLE_STATE);
-        }
+        visibleText = (TextView) v.findViewById(R.id.crime_visible_text);
 
         updateUI();
 
@@ -112,19 +110,27 @@ public class CrimeListFragment extends Fragment {
         }
     }
 
-
-
     public void updateSubtitle(){
         CrimeLab crimeLab = CrimeLab.getInstance(getActivity());
         int crimeCount = crimeLab.getCrimes().size();
-        String subtitle = getString(R.string.subtitle_format, crimeCount);
+
+        // plurals << check ว่า list ของเรามีกี่อัน ถ้ามีอันเดียว subtitle จะขึ้นว่า crime แต่ถ้ามีหลายอันจะขึ้นว่า crimes>>
+        String subtitle = getResources().getQuantityString(R.plurals.subtitle_format,crimeCount,crimeCount);
 
         if (!_subtitleVisible) {
             subtitle = null;
         }
         AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
         appCompatActivity.getSupportActionBar().setSubtitle(subtitle);
+
+        //ไม่มี list จะ show text แต่ถ้ามี list text จะหาย
+        if (crimeCount != 0) {
+            visibleText.setVisibility(View.INVISIBLE);
+        } else {
+            visibleText.setVisibility(View.VISIBLE);
+        }
     }
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -140,7 +146,6 @@ public class CrimeListFragment extends Fragment {
     private void updateUI(){
         CrimeLab crimeLab = CrimeLab.getInstance(getActivity());//เรียกCrimeLab จาก method getInstance เพราะ crimeLab เป็น singleton ห้าม new
         List<Crime> crimes = crimeLab.getCrimes();
-
 
         if (_adapter == null) {
             _adapter = new CrimeAdapter(crimes);//สร้าง crime adapter

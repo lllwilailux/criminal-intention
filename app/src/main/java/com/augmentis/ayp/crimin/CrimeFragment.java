@@ -2,6 +2,7 @@ package com.augmentis.ayp.crimin;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -52,6 +53,7 @@ public class CrimeFragment extends Fragment {
     private CheckBox crimeSolvedCheckbox;
     private Button crimeReportButton;
     private Button crimeSuspectButton;
+    private Button crimeCallSuspectButton;
 
     public CrimeFragment() {}
 
@@ -173,6 +175,9 @@ public class CrimeFragment extends Fragment {
 //
 
 
+        /**
+         * Implicit Intent
+         */
         crimeReportButton = (Button) v.findViewById(R.id.crime_report);
         crimeReportButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -182,6 +187,7 @@ public class CrimeFragment extends Fragment {
                 i.putExtra(Intent.EXTRA_TEXT,getCrimeReport());
                 i.putExtra(Intent.EXTRA_SUBJECT,getString(R.string.crime_report_subject));
 
+                // หน้าที่ขึ้นให้เลือก app ที่จะส่ง เช่น line,facebook
                 i = Intent.createChooser(i, getString(R.string.send_report));
 
                 startActivity(i);
@@ -189,7 +195,8 @@ public class CrimeFragment extends Fragment {
         });
 
         // ถ้าไม่ประกาศ final จะไม่สามารถเอาไปใช้ใน class onclick ได้
-        final Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+        final Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI);// content provider
+       // pickContact.addCategory(Intent.CATEGORY_HOME);
 
         crimeSuspectButton = (Button) v.findViewById(R.id.crime_suspect);
         crimeSuspectButton.setOnClickListener(new View.OnClickListener() {
@@ -202,6 +209,22 @@ public class CrimeFragment extends Fragment {
         if (crime.getSuspect() != null) {
             crimeSuspectButton.setText(crime.getSuspect());
         }
+
+
+        PackageManager packageManager = getActivity().getPackageManager();
+        if (packageManager.resolveActivity(pickContact,PackageManager.MATCH_DEFAULT_ONLY) == null) {
+            crimeSuspectButton.setEnabled(false);
+        }
+
+
+        crimeCallSuspectButton = (Button) v.findViewById(R.id.call_crime_suspect);
+        crimeCallSuspectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
 
         return v;
     }
@@ -241,7 +264,9 @@ public class CrimeFragment extends Fragment {
         if (requestCode == REQUEST_CONTACT_SUSPECT) {
             if (data != null) {
                 Uri contactUri = data.getData();
-                String[] queryFields = new String[] { ContactsContract.Contacts.DISPLAY_NAME };
+                String[] queryFields = new String[] {
+                        ContactsContract.Contacts.DISPLAY_NAME,
+                        ContactsContract.CommonDataKinds.Phone.NUMBER };
                 Cursor c = getActivity()
                         .getContentResolver()
                         .query(contactUri,
@@ -255,7 +280,8 @@ public class CrimeFragment extends Fragment {
                     }
 
                     c.moveToFirst();
-                    String suspect = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    String suspect = c.getString(0);// ชื่อ DISPLAY_NAME
+                    suspect = suspect + ": " + c.getString(1);// เบอร์ NUMBER
 
                     crime.setSuspect(suspect);
                     crimeSuspectButton.setText(suspect);
