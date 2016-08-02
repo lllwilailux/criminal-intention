@@ -2,7 +2,10 @@ package com.augmentis.ayp.crimin;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -21,6 +24,8 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 
 import java.sql.Time;
+import android.text.format.DateFormat;
+//import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -35,6 +40,7 @@ public class CrimeFragment extends Fragment {
     private static final String DIALOG_DATE = "CrimeDateDialogFragment";
     private static final int REQUEST_DATE = 2222;
     private static final int REQUEST_TIME = 111;
+    private static final int REQUEST_CONTACT_SUSPECT = 333;
     private static final String DIALOG_TIME = "CrimeTimeDialogFragment";
 
     private Crime crime;
@@ -44,6 +50,8 @@ public class CrimeFragment extends Fragment {
     private Button crimeTimeButton;
     private Button crimeDeleteButton;
     private CheckBox crimeSolvedCheckbox;
+    private Button crimeReportButton;
+    private Button crimeSuspectButton;
 
     public CrimeFragment() {}
 
@@ -163,6 +171,38 @@ public class CrimeFragment extends Fragment {
 //            }
 //        });
 //
+
+
+        crimeReportButton = (Button) v.findViewById(R.id.crime_report);
+        crimeReportButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(Intent.ACTION_SEND);
+                i.setType("text/plain"); // MIME Type
+                i.putExtra(Intent.EXTRA_TEXT,getCrimeReport());
+                i.putExtra(Intent.EXTRA_SUBJECT,getString(R.string.crime_report_subject));
+
+                i = Intent.createChooser(i, getString(R.string.send_report));
+
+                startActivity(i);
+            }
+        });
+
+        // ถ้าไม่ประกาศ final จะไม่สามารถเอาไปใช้ใน class onclick ได้
+        final Intent pickContact = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+
+        crimeSuspectButton = (Button) v.findViewById(R.id.crime_suspect);
+        crimeSuspectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivityForResult(pickContact, REQUEST_CONTACT_SUSPECT);
+            }
+        });
+
+        if (crime.getSuspect() != null) {
+            crimeSuspectButton.setText(crime.getSuspect());
+        }
+
         return v;
     }
 
@@ -197,6 +237,33 @@ public class CrimeFragment extends Fragment {
             crime.setCrimeDate(date);
             crimeTimeButton.setText(getFormattedTime(crime.getCrimeDate()));
         }
+
+        if (requestCode == REQUEST_CONTACT_SUSPECT) {
+            if (data != null) {
+                Uri contactUri = data.getData();
+                String[] queryFields = new String[] { ContactsContract.Contacts.DISPLAY_NAME };
+                Cursor c = getActivity()
+                        .getContentResolver()
+                        .query(contactUri,
+                                queryFields,
+                                null,
+                                null,
+                                null);
+                try {
+                    if (c.getCount() == 0) {
+                        return;
+                    }
+
+                    c.moveToFirst();
+                    String suspect = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+
+                    crime.setSuspect(suspect);
+                    crimeSuspectButton.setText(suspect);
+                } finally {
+                    c.close();
+                }
+            }
+        }
     }
 
     @Override
@@ -222,5 +289,27 @@ public class CrimeFragment extends Fragment {
                 getActivity().finish();
         default:
         return super.onOptionsItemSelected(item);}
+    }
+
+    private String getCrimeReport() {
+        String solvedString = null;
+        if (crime.isSolved()) {
+            solvedString = getString(R.string.crime_report_solved);
+        } else {
+            solvedString = getString(R.string.crime_report_unsolved);
+        }
+
+        String dateFormat = "EEE, MMM dd";
+        String dateString = DateFormat.format(dateFormat, crime.getCrimeDate()).toString();
+
+        String suspect = crime.getSuspect();
+
+        if (suspect == null) {
+            suspect = getString(R.string.crime_report_no_suspect);
+        } else {
+            suspect = getString(R.string.crime_report_with_suspect, suspect);
+        }
+        String report = getString(R.string.crime_report,crime.getTitle(),dateString,solvedString,suspect);
+        return report;
     }
 }
