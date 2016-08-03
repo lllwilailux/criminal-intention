@@ -29,4 +29,5 @@
     <string name="send_report">Send crime report via</string>
     <string name="call_crime_suspect">Call Suspect</string>
     <string name="visible_text">You have no list, Please click the button to add the list :)</string>
+    <string name="denied_permission_to_call">Permission Denied</string>
 </resources>

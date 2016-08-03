@@ -1,5 +1,6 @@
 package com.augmentis.ayp.crimin;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,8 +11,10 @@ import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -21,15 +24,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Toast;
 
-import java.sql.Time;
-import android.text.format.DateFormat;
-//import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.StringTokenizer;
 import java.util.UUID;
+
+//import java.text.DateFormat;
 
 /**
  * Created by Wilailux on 7/18/2016.
@@ -39,10 +42,12 @@ public class CrimeFragment extends Fragment {
     private static final String CRIME_ID = "CrimeFragment.CRIME_ID";
     private static final String CRIME_POSITION = "CrimeFragment.CRIME_POSITION";
     private static final String DIALOG_DATE = "CrimeDateDialogFragment";
-    private static final int REQUEST_DATE = 2222;
+    private static final int REQUEST_DATE = 222;
     private static final int REQUEST_TIME = 111;
     private static final int REQUEST_CONTACT_SUSPECT = 333;
     private static final String DIALOG_TIME = "CrimeTimeDialogFragment";
+    private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 444 ;
+    private static final String TAG = "CrimeFragment";
 
     private Crime crime;
     private EditText editText;
@@ -221,13 +226,15 @@ public class CrimeFragment extends Fragment {
         crimeCallSuspectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (hasCallPermission()) {
+                    callSuspect();
+                }
 
             }
         });
-
-
         return v;
     }
+
 
 
     private String getFormattedDate(Date date){
@@ -299,6 +306,59 @@ public class CrimeFragment extends Fragment {
         CrimeLab.getInstance(getActivity()).updateCrime(crime);// update crime in database after click back
     }
 
+
+
+    public void callSuspect() {
+
+        Intent i = new Intent(Intent.ACTION_CALL);
+        StringTokenizer tokenizer = new StringTokenizer(crime.getSuspect(), ":");
+        String name = tokenizer.nextToken();
+        String phone = tokenizer.nextToken();
+        Log.d(TAG, "calling " + name + "/" + phone);
+        i.setData(Uri.parse("tel:" + phone));
+
+        startActivity(i);
+    }
+
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_CALL_PHONE: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    callSuspect();
+                } else {
+                    Toast.makeText(getActivity(),R.string.denied_permission_to_call,Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+        }
+    }
+
+
+    private boolean hasCallPermission() {
+
+        // Check if permission is not granted
+        if (ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            requestPermissions(
+                    new String[]{
+                            Manifest.permission.CALL_PHONE
+                    },
+                    MY_PERMISSIONS_REQUEST_CALL_PHONE);
+
+            return false; // checking -- wait for dialog
+        }
+
+        return true; // already has permission
+    }
+
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
@@ -338,4 +398,5 @@ public class CrimeFragment extends Fragment {
         String report = getString(R.string.crime_report,crime.getTitle(),dateString,solvedString,suspect);
         return report;
     }
+
 }
