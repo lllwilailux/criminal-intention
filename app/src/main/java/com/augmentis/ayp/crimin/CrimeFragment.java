@@ -94,6 +94,7 @@ public class CrimeFragment extends Fragment {
     // callback
     public interface Callbacks {
         void onCrimeUpdated(Crime crime);
+        void onCrimeDelete();
     }
 
     @Override
@@ -206,9 +207,10 @@ public class CrimeFragment extends Fragment {
         crimeSolvedCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                crime.setSolved(isChecked);
+
+                    crime.setSolved(isChecked);
                     updateCrime();
-                //Log.d(CrimeActivity.TAG, "Crime:" + crime.toString());
+                    Log.d(TAG, "Crime:" + crime.toString());
             }
         });
 
@@ -305,9 +307,6 @@ public class CrimeFragment extends Fragment {
         });
 
 
-
-
-
         // Update photo changing
         updatePhotoView();
         return v;
@@ -389,13 +388,14 @@ public class CrimeFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-
-        updateCrime();
+//        updateCrime();
     }
 
     public void updateCrime(){
         CrimeLab.getInstance(getActivity()).updateCrime(crime);// update crime in database after click back
-        callbacks.onCrimeUpdated(crime);
+        if (CrimeFragment.this.isResumed()){
+            callbacks.onCrimeUpdated(crime);
+        }
     }
 
     public void callSuspect() {
@@ -462,7 +462,10 @@ public class CrimeFragment extends Fragment {
         switch (item.getItemId()){
             case R.id.menu_item_delete_crime:
                 CrimeLab.getInstance(getActivity()).deleteCrime(crime.getId());
-                getActivity().finish();
+//                getActivity().finish();
+//                updateCrime();
+                callbacks.onCrimeDelete();
+                return true;
         default:
         return super.onOptionsItemSelected(item);}
     }

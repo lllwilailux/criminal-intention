@@ -2,6 +2,7 @@ package com.augmentis.ayp.crimin;
 
 import android.content.Intent;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
 public class CrimeListActivity extends SingleFragmentActivity  implements CrimeListFragment.Callbacks , CrimeFragment.Callbacks{
 
@@ -21,13 +22,19 @@ public class CrimeListActivity extends SingleFragmentActivity  implements CrimeL
             Intent intent = CrimePagerActivity.newIntent(this,crime.getId());
             startActivity(intent);
         } else {
-            Fragment newDetailFragment = CrimeFragment.newInstance(crime.getId());
 
-            // replace old fragment with new one
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.detail_fragment_container, newDetailFragment)
-                    .commit();
+            Log.d(TAG,"On crime selected :" + crime);
+
+
+
+
+                Fragment newDetailFragment = CrimeFragment.newInstance(crime.getId());
+
+                // replace old fragment with new one
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.detail_fragment_container, newDetailFragment)
+                        .commit();
         }
 
     }
@@ -39,4 +46,17 @@ public class CrimeListActivity extends SingleFragmentActivity  implements CrimeL
 
         listFragment.updateUI();
     }
+
+    @Override
+    public void onCrimeDelete() {
+        CrimeListFragment listFragment = (CrimeListFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+
+        CrimeFragment detailFragment = (CrimeFragment) getSupportFragmentManager().findFragmentById(R.id.detail_fragment_container );
+
+        listFragment.updateUI();
+
+        //clear
+        getSupportFragmentManager().beginTransaction().detach(detailFragment).commit();
+    }
+
 }

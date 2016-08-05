@@ -227,9 +227,12 @@ public class CrimeListFragment extends Fragment {
 
             _solvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    _crime.setSolved(b);
-                    CrimeLab.getInstance(getActivity()).updateCrime(_crime);
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                        _crime.setSolved(isChecked);
+                        callbacks.onCrimeSelected(_crime);
+                        CrimeLab.getInstance(getActivity()).updateCrime(_crime);
+
                 }
             });
 
@@ -243,6 +246,7 @@ public class CrimeListFragment extends Fragment {
             _titleTextView.setText(_crime.getTitle());
             _dateTextView.setText(_crime.getCrimeDate().toString());
             _solvedCheckBox.setChecked(_crime.isSolved());
+
 
             // show image on listFragment page
             File photoFile = CrimeLab.getInstance(getActivity()).getPhotoFile(_crime);

@@ -6,7 +6,7 @@ import android.support.v4.app.Fragment;
 
 import java.util.UUID;
 
-public class CrimePagerActivity extends SingleFragmentActivity {
+public class CrimePagerActivity extends SingleFragmentActivity implements CrimeFragment.Callbacks {
 
     @Override
     protected int getLayoutResId() {
@@ -39,6 +39,11 @@ public class CrimePagerActivity extends SingleFragmentActivity {
     }
 
     public void onCrimeUpdated(Crime crime) {
+
+    }
+
+    @Override
+    public void onCrimeDelete() {
 
     }
 }
