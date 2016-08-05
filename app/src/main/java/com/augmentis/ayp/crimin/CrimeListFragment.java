@@ -1,8 +1,11 @@
 package com.augmentis.ayp.crimin;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -17,8 +20,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -40,6 +45,25 @@ public class CrimeListFragment extends Fragment {
 
     private static final int REQUEST_UPDATE_CRIME = 191;
     //private int crimePos;
+
+    private Callbacks callbacks;
+
+
+    public interface Callbacks {
+        void onCrimeSelected(Crime crime);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        callbacks = (Callbacks) context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        callbacks = null;
+    }
 
     /**
      * create view from fragment_crime_list layout and put Recycle in this layout
@@ -94,8 +118,12 @@ public class CrimeListFragment extends Fragment {
 
                 Crime crime = new Crime();
                 CrimeLab.getInstance(getActivity()).addCrime(crime);
-                Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId());
-                startActivity(intent);
+
+                //support tablet
+                updateUI();
+                callbacks.onCrimeSelected(crime);
+//                Intent intent = CrimePagerActivity.newIntent(getActivity(), crime.getId());
+//                startActivity(intent);
                 return true;
 
             case R.id.menu_item_show_subtitle :
@@ -143,7 +171,7 @@ public class CrimeListFragment extends Fragment {
      * Update UI
      *
      */
-    private void updateUI(){
+    public void updateUI(){
         CrimeLab crimeLab = CrimeLab.getInstance(getActivity());//เรียกCrimeLab จาก method getInstance เพราะ crimeLab เป็น singleton ห้าม new
         List<Crime> crimes = crimeLab.getCrimes();
 
@@ -162,7 +190,7 @@ public class CrimeListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Log.d(TAG, "Resume list");
-        updateUI();
+        updateUI();// refresh list
     }
 
 
@@ -183,6 +211,7 @@ public class CrimeListFragment extends Fragment {
         public TextView _titleTextView;
         public TextView  _dateTextView;
         public CheckBox _solvedCheckBox;
+        public ImageView _photoListView;
 
         Crime _crime;
         int _position;
@@ -193,6 +222,8 @@ public class CrimeListFragment extends Fragment {
             _titleTextView = (TextView) itemView.findViewById(R.id.list_item_crime_title_text_view);
             _solvedCheckBox = (CheckBox) itemView.findViewById(R.id.list_item_crime_solve_check_box);
             _dateTextView = (TextView) itemView.findViewById(R.id.list_item_crime_date_text_view);
+            _photoListView = (ImageView) itemView.findViewById(R.id.list_image_view);
+
 
             _solvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -213,6 +244,11 @@ public class CrimeListFragment extends Fragment {
             _dateTextView.setText(_crime.getCrimeDate().toString());
             _solvedCheckBox.setChecked(_crime.isSolved());
 
+            // show image on listFragment page
+            File photoFile = CrimeLab.getInstance(getActivity()).getPhotoFile(_crime);
+            Bitmap bitmap = PictureUtils.getScaledBitmap(photoFile.getPath(), getActivity());
+            _photoListView.setImageBitmap(bitmap);
+
         }
 
 
@@ -224,8 +260,9 @@ public class CrimeListFragment extends Fragment {
         public void onClick(View v) {
             Log.d(TAG, "send position : " + _position);
             //crimePos = _position;
-            Intent intent = CrimePagerActivity.newIntent(getActivity(), _crime.getId());//intent คือ obj ของ android ที่ใช้เรียก activity ขึ้นมา
-            startActivityForResult(intent, REQUEST_UPDATE_CRIME);//  startActivityForResult, starActivity เป็น method ของ class fragment, startActivity จะเรียก intent อย่างเดียว
+            callbacks.onCrimeSelected(_crime);
+//            Intent intent = CrimePagerActivity.newIntent(getActivity(), _crime.getId());//intent คือ obj ของ android ที่ใช้เรียก activity ขึ้นมา
+//            startActivityForResult(intent, REQUEST_UPDATE_CRIME);//  startActivityForResult, starActivity เป็น method ของ class fragment, startActivity จะเรียก intent อย่างเดียว
         }
     }
 

@@ -3,40 +3,54 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="10dp"
-    >
+    android:paddingBottom="10dp">
+
 
     <CheckBox
         android:id="@+id/list_item_crime_solve_check_box"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
         android:padding="4dp" />
 
     <TextView
+        android:id="@+id/list_item_crime_title_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/list_item_crime_title_text_view"
         android:textStyle="bold"
         android:padding="4dp"
         android:textSize="24sp"
-        android:layout_toRightOf="@id/list_item_crime_solve_check_box"
         tools:text="Crime title"
-        />
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/list_image_view"
+        android:layout_toEndOf="@+id/list_image_view" />
 
     <TextView
         android:id="@+id/list_item_crime_date_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/list_item_crime_solve_check_box"
-        android:layout_below="@id/list_item_crime_title_text_view"
         android:padding="4dp"
-        tools:text="Crime date"/>
+        tools:text="Crime date"
+        android:layout_below="@+id/list_item_crime_title_text_view"
+        android:layout_toRightOf="@+id/list_image_view"
+        android:layout_toEndOf="@+id/list_image_view"
+        android:layout_alignBottom="@+id/list_image_view" />
+
+    <ImageView
+        android:id="@+id/list_image_view"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:scaleType="centerInside"
+        android:background="@android:color/darker_gray"/>
 
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"/>
+
 
 </RelativeLayout>

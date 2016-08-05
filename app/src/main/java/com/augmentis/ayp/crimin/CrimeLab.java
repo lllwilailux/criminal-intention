@@ -6,8 +6,10 @@ import android.database.Cursor;
 import android.database.CursorWrapper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
 import android.util.Log;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -90,6 +92,7 @@ public class CrimeLab {
 
         CrimeCursorWrapper cursor = queryCrimes(null, null);
 
+        // isAfterLast หลังจากบันทัดสุดท้าย
         try {
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
@@ -120,6 +123,16 @@ public class CrimeLab {
         ContentValues contentValues = getContentValues(crime);
 
         database.update(CrimeTable.NAME, contentValues, CrimeTable.Cols.UUID + " = ?", new String[] {uuidStr});
+    }
+
+
+    public File getPhotoFile(Crime crime) {
+        File externalFilesDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+        if (externalFilesDir == null) {
+            return null;
+        }
+        return  new File(externalFilesDir, crime.getPhotoFilename());
     }
 
 }
