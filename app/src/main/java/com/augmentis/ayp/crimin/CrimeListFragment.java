@@ -22,9 +22,9 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import java.io.File;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Wilailux on 7/18/2016.
@@ -51,12 +51,14 @@ public class CrimeListFragment extends Fragment {
 
     public interface Callbacks {
         void onCrimeSelected(Crime crime);
+        void onOpenSelectFirst();
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         callbacks = (Callbacks) context;
+        callbacks.onOpenSelectFirst();
     }
 
     @Override
@@ -213,6 +215,7 @@ public class CrimeListFragment extends Fragment {
         public CheckBox _solvedCheckBox;
         public ImageView _photoListView;
 
+        UUID _crimeId;
         Crime _crime;
         int _position;
 
@@ -228,7 +231,6 @@ public class CrimeListFragment extends Fragment {
             _solvedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
                         _crime.setSolved(isChecked);
                         callbacks.onCrimeSelected(_crime);
                         CrimeLab.getInstance(getActivity()).updateCrime(_crime);

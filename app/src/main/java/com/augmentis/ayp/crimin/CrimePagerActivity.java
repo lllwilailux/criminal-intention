@@ -44,6 +44,6 @@ public class CrimePagerActivity extends SingleFragmentActivity implements CrimeF
 
     @Override
     public void onCrimeDelete() {
-
+        finish();
     }
 }
